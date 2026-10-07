@@ -1,1 +1,1 @@
-# Torneio-Juvenil-de-Rob-tica
+# Torneio Juvenil de Robótica
