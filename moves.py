@@ -39,7 +39,8 @@ def desvio():
     frente(1.7)
     esquerda(0.7)
     frente (1.8)
-    esquerda(1)
+    esquerda(1.1)
+    frente(1)
     while ir_e.reflected_light_intensity >= 20:
         motor_e.on(35)
         motor_d.on(35)
@@ -76,6 +77,6 @@ def soltar():
     motor_e.off()
     motor_d.off()
     pick(1,0.8)
-    frente(1.5)
-    pick(-1,1)
+    #frente(1.5)
+    #pick(-1,1)
 

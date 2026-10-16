@@ -3,9 +3,9 @@
 from ev3dev2.motor import LargeMotor, MediumMotor, OUTPUT_B, OUTPUT_C, OUTPUT_D
 from ev3dev2.sensor.lego import ColorSensor, UltrasonicSensor, InfraredSensor
 from ev3dev2.sensor import INPUT_1, INPUT_3, INPUT_2, INPUT_4
-from time import sleep
-from moves import desvio, pegar, pick, soltar 
 from time import sleep, time
+from moves import desvio, pegar, pick, soltar 
+
 
 motor_e = LargeMotor(OUTPUT_B)
 motor_d = LargeMotor(OUTPUT_C)
@@ -18,7 +18,7 @@ red = InfraredSensor(INPUT_4)
 ultrassonico = UltrasonicSensor(INPUT_2)
 tempo_correcao = time()
 
-kp = 90
+kp = 120
 vel = 40
 ultima_curva = "direita"
 count = 0
