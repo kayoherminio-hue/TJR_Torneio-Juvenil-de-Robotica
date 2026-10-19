@@ -18,8 +18,9 @@ red = InfraredSensor(INPUT_4)
 ultrassonico = UltrasonicSensor(INPUT_2)
 tempo_correcao = time()
 
-kp = 120
-vel = 40
+
+kp = 150
+vel = 70
 ultima_curva = "direita"
 count = 0
 #pick(-1,0.8)
@@ -47,7 +48,7 @@ while True:
         if tempo_preto is None:
             tempo_preto = time()
 
-        elif time() - tempo_preto >= 0.5:
+        elif time() - tempo_preto >= 0.3:
             soltar()
             motor_e.off()
             motor_d.off()
@@ -80,7 +81,7 @@ while True:
             motor_e.on(-35)
             motor_d.on(35)
 
-    elif d < 20 and e >= 20:
+    elif d < 10 and e >= 20:
         motor_e.on(20)
         motor_d.on(20)
         sleep(0.25)
@@ -96,7 +97,7 @@ while True:
         motor_d.on(20)
         sleep(0.15)
 
-    elif e < 20 and d >= 20:
+    elif e < 10 and d >= 20 :
         motor_e.on(20)
         motor_d.on(20)
         sleep(0.25)
@@ -124,7 +125,7 @@ while True:
             correcao = erro * kp
 
             if abs(erro) > 0.6:
-                vel_atual = 33
+                vel_atual = 62
             else:
                 vel_atual = vel
 
@@ -137,4 +138,4 @@ while True:
             motor_e.on(mov_e)
             motor_d.on(mov_d)
 
-    sleep(0.01)
+    #sleep(0.01)
