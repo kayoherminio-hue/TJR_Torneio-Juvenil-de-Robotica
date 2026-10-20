@@ -73,7 +73,7 @@ def pegar():
 def soltar():
     tras(1.1)
     direita(2.8)    
-    tras(0.3)
+    tras(0.4)
     motor_e.off()
     motor_d.off()
     pick(1,0.8)
