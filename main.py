@@ -43,6 +43,13 @@ while True:
     distancia2 = red.proximity
     distancia = ultrassonico.distance_centimeters_continuous
 
+    # --- VERIFICAÇÃO: MARROM E MARROM (Cor 7 no EV3) ---
+    if ir_e.color == 7 and ir_d.color == 7:
+        motor_e.off()
+        motor_d.off()
+        garra.off()
+        break
+
     e = ir_e.reflected_light_intensity
     d = ir_d.reflected_light_intensity
     
