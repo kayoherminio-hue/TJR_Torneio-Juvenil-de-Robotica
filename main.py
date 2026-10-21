@@ -3,9 +3,9 @@
 from ev3dev2.motor import LargeMotor, MediumMotor, OUTPUT_B, OUTPUT_C, OUTPUT_D
 from ev3dev2.sensor.lego import ColorSensor, UltrasonicSensor, InfraredSensor
 from ev3dev2.sensor import INPUT_1, INPUT_3, INPUT_2, INPUT_4
+from ev3dev2.button import Button
 from time import sleep, time
 from moves import desvio, pegar, pick, soltar 
-
 
 motor_e = LargeMotor(OUTPUT_B)
 motor_d = LargeMotor(OUTPUT_C)
@@ -16,50 +16,59 @@ ir_d = ColorSensor(INPUT_3)
 red = InfraredSensor(INPUT_4)
 
 ultrassonico = UltrasonicSensor(INPUT_2)
-tempo_correcao = time()
+btn = Button()
 
-
-kp = 450
-vel = 70
+kp = 675
+vel = 78
 ultima_curva = "direita"
 count = 0
-#pick(-1,0.8)
+tempo_preto = None
+
+btn.wait_for_bump('up')
+tempo_correcao = time()
+
 while True:
+    if btn.down:
+        motor_e.off()
+        motor_d.off()
+        garra.off()
+        sleep(0.5)
+        
+        btn.wait_for_bump('down')
+        
+        tempo_correcao = time()
+        if tempo_preto is not None:
+            tempo_preto = time()
 
     distancia2 = red.proximity
     distancia = ultrassonico.distance_centimeters_continuous
 
     e = ir_e.reflected_light_intensity
     d = ir_d.reflected_light_intensity
-
     
-    if time() - tempo_correcao >= 3:
+    '''if time() - tempo_correcao >= 3:
         garra.on_for_seconds(
             speed=-35,
             seconds=0.4,
             brake=True,
             block=False
         )
-    tempo_correcao = time()
+        tempo_correcao = time()'''
+
     if e < 20 and d < 20:
         if tempo_preto is None:
             tempo_preto = time()
-
         elif time() - tempo_preto >= 0.3:
             soltar()
             motor_e.off()
             motor_d.off()
-            #garra.stop_action = 'hold'
             garra.off()
             break
     else:
-
         tempo_preto = None
-
 
     if distancia <= 4 and distancia2 <= 4:
         desvio()
-
     elif distancia <= 4 and distancia2 >= 4:
         pegar()
 
@@ -83,11 +92,9 @@ while True:
         while ir_e.reflected_light_intensity >= 20:
             motor_e.on(35)
             motor_d.on(-35)
-
         motor_e.on(-20)
         motor_d.on(20)
         sleep(0.3)
-
         motor_e.on(20)
         motor_d.on(20)
         sleep(0.15)
@@ -99,11 +106,9 @@ while True:
         while ir_d.reflected_light_intensity >= 20:
             motor_e.on(-35)
             motor_d.on(35)
-
         motor_e.on(20)
         motor_d.on(-20)
         sleep(0.3)
-
         motor_e.on(20)
         motor_d.on(20)
         sleep(0.15)
@@ -111,7 +116,6 @@ while True:
     else:
         e_calc = 100 - e
         d_calc = 100 - d
-
         linha = e_calc + d_calc
 
         if linha > 0:
@@ -120,7 +124,7 @@ while True:
             correcao = erro * kp
 
             if abs(erro) > 0.6:
-                vel_atual = 63
+                vel_atual = 70
             else:
                 vel_atual = vel
 
@@ -132,5 +136,3 @@ while True:
 
             motor_e.on(mov_e)
             motor_d.on(mov_d)
-
-    #sleep(0.01)
