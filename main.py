@@ -4,6 +4,7 @@ from ev3dev2.motor import LargeMotor, MediumMotor, OUTPUT_B, OUTPUT_C, OUTPUT_D
 from ev3dev2.sensor.lego import ColorSensor, UltrasonicSensor, InfraredSensor
 from ev3dev2.sensor import INPUT_1, INPUT_3, INPUT_2, INPUT_4
 from ev3dev2.button import Button
+from ev3dev2.display import Display    
 from time import sleep, time
 from moves import desvio, pegar, pick, soltar 
 
@@ -17,16 +18,31 @@ red = InfraredSensor(INPUT_4)
 
 ultrassonico = UltrasonicSensor(INPUT_2)
 btn = Button()
+tela = Display()                        
 
 kp = 675
-vel = 78
+kd = 875                
+erro_anterior = 0       
+vel = 90
 ultima_curva = "direita"
 count = 0
 tempo_preto = None
 
-btn.wait_for_bump('up')
-tempo_correcao = time()
 
+while not btn.up:
+    tela.clear()
+    tela.text_pixels("SENSORES", clear_screen=False, x=5, y=5)
+    tela.text_pixels("Esq (luz): " + str(ir_e.reflected_light_intensity), clear_screen=False, x=5, y=25)
+    tela.text_pixels("Dir (luz): " + str(ir_d.reflected_light_intensity), clear_screen=False, x=5, y=43)
+    tela.text_pixels("Ultra cm: " + str(int(ultrassonico.distance_centimeters)), clear_screen=False, x=5, y=61)
+    tela.text_pixels("IR prox: " + str(red.proximity), clear_screen=False, x=5, y=79)
+    tela.text_pixels("CIMA = comecar", clear_screen=False, x=5, y=105)
+    tela.update()
+    sleep(0.1)
+sleep(0.3)   
+
+tempo_correcao = time()
+pick(-1, 0.5)
 while True:
     if btn.down:
         motor_e.off()
@@ -37,30 +53,20 @@ while True:
         btn.wait_for_bump('down')
         
         tempo_correcao = time()
+        erro_anterior = 0   
         if tempo_preto is not None:
             tempo_preto = time()
 
     distancia2 = red.proximity
     distancia = ultrassonico.distance_centimeters_continuous
 
-    # --- VERIFICAÇÃO: MARROM E MARROM (Cor 7 no EV3) ---
-    if ir_e.color == 7 and ir_d.color == 7:
-        motor_e.off()
-        motor_d.off()
-        garra.off()
-        break
+    
+    '''if ir_e.color == 7 and ir_d.color == 7:
+        pass'''
 
     e = ir_e.reflected_light_intensity
     d = ir_d.reflected_light_intensity
     
-    '''if time() - tempo_correcao >= 3:
-        garra.on_for_seconds(
-            speed=-35,
-            seconds=0.4,
-            brake=True,
-            block=False
-        )
-        tempo_correcao = time()'''
 
     if e < 20 and d < 20:
         if tempo_preto is None:
@@ -76,8 +82,10 @@ while True:
 
     if distancia <= 4 and distancia2 <= 4:
         desvio()
+        erro_anterior = 0   
     elif distancia <= 4 and distancia2 >= 4:
         pegar()
+        erro_anterior = 0   
 
     if d < 30:
         ultima_curva = "direita"
@@ -85,17 +93,19 @@ while True:
         ultima_curva = "esquerda"
 
     if e > 50 and d > 50:
+        erro_anterior = 0   
         if ultima_curva == "direita":
             motor_e.on(35)
             motor_d.on(-35)
         elif ultima_curva == "esquerda":
             motor_e.on(-35)
             motor_d.on(35)
-
-    elif d < 10 and e >= 20:
+        #valor normal é 10 e 20
+    elif d < 10 and e >= 23:
+        erro_anterior = 0   
         motor_e.on(20)
         motor_d.on(20)
-        sleep(0.25)
+        sleep(0.55)
         while ir_e.reflected_light_intensity >= 20:
             motor_e.on(35)
             motor_d.on(-35)
@@ -106,10 +116,11 @@ while True:
         motor_d.on(20)
         sleep(0.15)
 
-    elif e < 10 and d >= 20 :
+    elif e < 10 and d >= 23:
+        erro_anterior = 0   
         motor_e.on(20)
         motor_d.on(20)
-        sleep(0.25)
+        sleep(0.55)
         while ir_d.reflected_light_intensity >= 20:
             motor_e.on(-35)
             motor_d.on(35)
@@ -128,10 +139,13 @@ while True:
         if linha > 0:
             posi = (-1 * e_calc + d_calc) / linha
             erro = posi
-            correcao = erro * kp
+
+            derivada = erro - erro_anterior            
+            erro_anterior = erro                       
+            correcao = erro * kp + derivada * kd       
 
             if abs(erro) > 0.6:
-                vel_atual = 70
+                vel_atual = 82
             else:
                 vel_atual = vel
 
