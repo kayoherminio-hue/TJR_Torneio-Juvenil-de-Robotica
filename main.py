@@ -6,7 +6,7 @@ from ev3dev2.sensor import INPUT_1, INPUT_3, INPUT_2, INPUT_4
 from ev3dev2.button import Button
 from ev3dev2.display import Display    
 from time import sleep, time
-from moves import desvio, pegar, pick, soltar 
+from moves import desvio, pegar, pick, soltar, soltar2
 
 motor_e = LargeMotor(OUTPUT_B)
 motor_d = LargeMotor(OUTPUT_C)
@@ -28,17 +28,51 @@ ultima_curva = "direita"
 count = 0
 tempo_preto = None
 
+VERDE = 3
+ATRASO_VERDE = 1.0
+soltou = False
+tempo_soltou = 0
+n_verde = 0
 
-while not btn.up:
+
+VEL_GIRO = 30           
+KP_ALINHA = 50          
+TEMPO_MAX_GIRO = 4.0    
+TEMPO_MAX_ALINHA = 1.5  
+
+def realinhar():
+    motor_e.on(40)
+    motor_d.on(40)
+    sleep(1)
+    motor_e.on(-35)
+    motor_d.on(35)
+    sleep(1)
+    while ir_e.reflected_light_intensity >= 20:
+        motor_e.on(35)
+        motor_d.on(-35)
+    motor_e.on(20)
+    motor_d.on(-20)
+    sleep(0.3)
+    motor_e.on(20)
+    motor_d.on(20)
+    sleep(0.15)
+
+while not (btn.up or btn.left):
     tela.clear()
     tela.text_pixels("SENSORES", clear_screen=False, x=5, y=5)
     tela.text_pixels("Esq (luz): " + str(ir_e.reflected_light_intensity), clear_screen=False, x=5, y=25)
     tela.text_pixels("Dir (luz): " + str(ir_d.reflected_light_intensity), clear_screen=False, x=5, y=43)
     tela.text_pixels("Ultra cm: " + str(int(ultrassonico.distance_centimeters)), clear_screen=False, x=5, y=61)
     tela.text_pixels("IR prox: " + str(red.proximity), clear_screen=False, x=5, y=79)
-    tela.text_pixels("CIMA = comecar", clear_screen=False, x=5, y=105)
+    tela.text_pixels("CIMA = normal", clear_screen=False, x=5, y=97)
+    tela.text_pixels("ESQ = modalidade 2", clear_screen=False, x=5, y=115)
     tela.update()
     sleep(0.1)
+
+modo2 = btn.left
+tela.clear()
+tela.text_pixels("MODALIDADE 2" if modo2 else "NORMAL", clear_screen=False, x=5, y=5)
+tela.update()
 sleep(0.3)   
 
 tempo_correcao = time()
@@ -60,7 +94,6 @@ while True:
     distancia2 = red.proximity
     distancia = ultrassonico.distance_centimeters_continuous
 
-    
     '''if ir_e.color == 7 and ir_d.color == 7:
         pass'''
 
@@ -68,24 +101,33 @@ while True:
     d = ir_d.reflected_light_intensity
     
 
-    if e < 20 and d < 20:
+    if not soltou and e < 20 and d < 20:
         if tempo_preto is None:
             tempo_preto = time()
         elif time() - tempo_preto >= 0.3:
             soltar()
-            motor_e.off()
-            motor_d.off()
-            garra.off()
-            break
+            if modo2:
+                realinhar()                 
+                soltou = True
+                tempo_soltou = time()
+                tempo_preto = None
+                erro_anterior = 0
+                continue                    
+            else:
+                motor_e.off()
+                motor_d.off()
+                garra.off()
+                break
     else:
         tempo_preto = None
 
-    if distancia <= 4 and distancia2 <= 4:
-        desvio()
-        erro_anterior = 0   
-    elif distancia <= 4 and distancia2 >= 4:
-        pegar()
-        erro_anterior = 0   
+    if not soltou: # se tiver obstáculo antes do verde tem q mudar isso aqui 
+        if distancia <= 4 and distancia2 <= 4:
+            desvio()
+            erro_anterior = 0   
+        elif distancia <= 4 and distancia2 >= 4:
+            pegar()
+            erro_anterior = 0   
 
     if d < 30:
         ultima_curva = "direita"
@@ -101,7 +143,7 @@ while True:
             motor_e.on(-35)
             motor_d.on(35)
         #valor normal é 10 e 20
-    elif d < 10 and e >= 23:
+    elif d < 7 and e >= 23:
         erro_anterior = 0   
         motor_e.on(20)
         motor_d.on(20)
@@ -116,7 +158,7 @@ while True:
         motor_d.on(20)
         sleep(0.15)
 
-    elif e < 10 and d >= 23:
+    elif e < 7 and d >= 23:
         erro_anterior = 0   
         motor_e.on(20)
         motor_d.on(20)
@@ -157,3 +199,15 @@ while True:
 
             motor_e.on(mov_e)
             motor_d.on(mov_d)
+
+    if soltou and time() - tempo_soltou > ATRASO_VERDE:
+        n_verde += 1
+        if n_verde % 3 == 0:
+            if ir_e.color == VERDE or ir_d.color == VERDE:
+                motor_e.off()
+                motor_d.off()
+                garra.off()
+                tela.clear()
+                tela.text_pixels("VERDE - FIM", clear_screen=False, x=5, y=5)
+                tela.update()
+                break

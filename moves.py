@@ -80,3 +80,15 @@ def soltar():
     #frente(1.5)
     #pick(-1,1)
 
+def soltar2():
+    tras(1.1)
+    direita(2.8)    
+    tras(0.85)
+    motor_e.off()
+    motor_d.off()
+    pick(1,0.8)
+    frente(1.5)
+    pick(-1, 1.2)
+    #frente(1.5)
+    #pick(-1,1)
+
