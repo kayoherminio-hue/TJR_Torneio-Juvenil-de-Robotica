@@ -58,25 +58,25 @@ def pick(direcao: int, tempo: int):
 
 def pegar():
     tras(1.1)
-    direita(1.6)    
-    pick(1,0.8)
+    garra.on_for_seconds(80,0.8,block=False)
+    direita(2.4)    
     tras(1.2)
     pick(-1,1.2)
     #garra.hold()
     frente(0.8)
     direita(1)
     while ir_d.reflected_light_intensity >= 20:
-        motor_e.on(35)
-        motor_d.on(-35)
+        motor_e.on(55)
+        motor_d.on(-55)
     direita(0.3)
 
 def soltar():
     tras(1.1)
     direita(2.8)    
-    tras(0.85)
-    motor_e.off()
-    motor_d.off()
-    pick(1,0.8)
+   # tras(0.85)
+   # motor_e.off()
+   # motor_d.off()
+   # pick(1,0.8)'''
     #frente(1.5)
     #pick(-1,1)
 

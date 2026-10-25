@@ -6,7 +6,7 @@ from ev3dev2.sensor import INPUT_1, INPUT_3, INPUT_2, INPUT_4
 from ev3dev2.button import Button
 from ev3dev2.display import Display    
 from time import sleep, time
-from moves import desvio, pegar, pick, soltar, soltar2
+from moves import desvio, pegar, pick, soltar, tras, frente
 
 motor_e = LargeMotor(OUTPUT_B)
 motor_d = LargeMotor(OUTPUT_C)
@@ -101,11 +101,22 @@ while True:
     d = ir_d.reflected_light_intensity
     
 
-    if not soltou and e < 20 and d < 20:
+    if not soltou and e < 20 and d < 20: #TODO fazer uma reverificação antes de deixar o objeto
         if tempo_preto is None:
             tempo_preto = time()
         elif time() - tempo_preto >= 0.3:
             soltar()
+            tras(2)
+            e = ir_e.reflected_light_intensity
+            d = ir_d.reflected_light_intensity
+            while e > 20 and d > 20:
+                e = ir_e.reflected_light_intensity
+                d = ir_d.reflected_light_intensity
+                motor_e.on(-70)
+                motor_d.on(-70)
+            frente(1.4)
+            pick(1,0.8)
+
             if modo2:
                 realinhar()                 
                 soltou = True
@@ -145,30 +156,30 @@ while True:
         #valor normal é 10 e 20
     elif d < 7 and e >= 23:
         erro_anterior = 0   
-        motor_e.on(20)
-        motor_d.on(20)
-        sleep(0.55)
+        motor_e.on(40)
+        motor_d.on(40)
+        sleep(0.25)
         while ir_e.reflected_light_intensity >= 20:
             motor_e.on(35)
             motor_d.on(-35)
-        motor_e.on(-20)
-        motor_d.on(20)
-        sleep(0.3)
+        motor_e.on(-25)
+        motor_d.on(25)
+        sleep(0.24)
         motor_e.on(20)
         motor_d.on(20)
         sleep(0.15)
 
     elif e < 7 and d >= 23:
         erro_anterior = 0   
-        motor_e.on(20)
-        motor_d.on(20)
-        sleep(0.55)
+        motor_e.on(40)
+        motor_d.on(40)
+        sleep(0.25)
         while ir_d.reflected_light_intensity >= 20:
             motor_e.on(-35)
             motor_d.on(35)
-        motor_e.on(20)
-        motor_d.on(-20)
-        sleep(0.3)
+        motor_e.on(25)
+        motor_d.on(-25)
+        sleep(0.24)
         motor_e.on(20)
         motor_d.on(20)
         sleep(0.15)
