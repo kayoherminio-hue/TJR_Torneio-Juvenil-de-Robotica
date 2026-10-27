@@ -82,7 +82,7 @@ def soltar():
    # tras(0.85)
    # motor_e.off()
    # motor_d.off()
-   # pick(1,0.8)'''
+   # pick(1,0.8)
     #frente(1.5)
     #pick(-1,1)
 
