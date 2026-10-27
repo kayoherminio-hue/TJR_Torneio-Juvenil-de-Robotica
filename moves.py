@@ -65,14 +65,20 @@ def pegar():
     #garra.hold()
     frente(0.8)
     direita(1)
+    motor_e.on(40)
+    motor_d.on(-40)
+    sleep(0.7)
+    motor_e.on(-40)
+    motor_d.on(40)
+    sleep(0.5)
     while ir_d.reflected_light_intensity >= 20:
-        motor_e.on(55)
-        motor_d.on(-55)
+        motor_e.on(40)
+        motor_d.on(-40)
     direita(0.3)
 
 def soltar():
     tras(1.1)
-    direita(2.8)    
+    direita(3)    
    # tras(0.85)
    # motor_e.off()
    # motor_d.off()

@@ -4,12 +4,12 @@ from ev3dev2.motor import LargeMotor, MediumMotor, OUTPUT_B, OUTPUT_C, OUTPUT_D
 from ev3dev2.sensor.lego import ColorSensor, UltrasonicSensor, InfraredSensor
 from ev3dev2.sensor import INPUT_1, INPUT_3, INPUT_2, INPUT_4
 from ev3dev2.button import Button
-from ev3dev2.console import Console    # MUDOU: Display não existe no MicroPython
-import time as _t                      # MUDOU
-from time import sleep                 # MUDOU
+from ev3dev2.console import Console    
+import time as _t                      
+from time import sleep                 
 from moves import desvio, pegar, pick, soltar, tras, frente
 
-# MUDOU: relógio em segundos (com decimais), funciona com ou sem ticks_ms
+
 if hasattr(_t, "ticks_ms"):
     def agora():
         return _t.ticks_ms() / 1000
@@ -27,10 +27,10 @@ red = InfraredSensor(INPUT_4)
 
 ultrassonico = UltrasonicSensor(INPUT_2)
 btn = Button()
-tela = Console(font="Lat15-Terminus12x6")   # MUDOU: tela só de texto, fonte pequena
+tela = Console(font="Lat15-Terminus12x6")   
 
 
-def linha(n, texto):                        # MUDOU: escreve uma linha da tela
+def linha(n, texto):                        
     tela.text_at("{:<28}".format(texto), column=1, row=n)
 
 
@@ -71,7 +71,7 @@ def realinhar():
     motor_d.on(20)
     sleep(0.15)
 
-# MUDOU: tela inicial com Console (textos fixos escritos uma vez só)
+
 tela.reset_console()
 linha(1, "SENSORES")
 linha(6, "CIMA = normal")
@@ -85,11 +85,11 @@ while not (btn.up or btn.left):
     sleep(0.1)
 
 modo2 = btn.left
-tela.reset_console()                                                     # MUDOU
-tela.text_at("MODALIDADE 2" if modo2 else "NORMAL", column=1, row=1)    # MUDOU
+tela.reset_console()                                                     
+tela.text_at("MODALIDADE 2" if modo2 else "NORMAL", column=1, row=1)    
 sleep(0.3)   
 
-tempo_correcao = agora()                # MUDOU
+tempo_correcao = agora()                
 pick(-1, 0.5)
 while True:
     if btn.down:
@@ -100,10 +100,10 @@ while True:
         
         btn.wait_for_bump('down')
         
-        tempo_correcao = agora()        # MUDOU
+        tempo_correcao = agora()        
         erro_anterior = 0   
         if tempo_preto is not None:
-            tempo_preto = agora()       # MUDOU
+            tempo_preto = agora()       
 
     distancia2 = red.proximity
     distancia = ultrassonico.distance_centimeters_continuous
@@ -115,10 +115,10 @@ while True:
     d = ir_d.reflected_light_intensity
     
 
-    if not soltou and e < 20 and d < 20: #TODO fazer uma reverificação antes de deixar o objeto
+    if not soltou and e < 20 and d < 20: 
         if tempo_preto is None:
-            tempo_preto = agora()                   # MUDOU
-        elif agora() - tempo_preto >= 0.3:          # MUDOU
+            tempo_preto = agora()                   
+        elif agora() - tempo_preto >= 0.3:          
             soltar()
             tras(2)
             e = ir_e.reflected_light_intensity
@@ -134,7 +134,7 @@ while True:
             if modo2:
                 realinhar()                 
                 soltou = True
-                tempo_soltou = agora()      # MUDOU
+                tempo_soltou = agora()      
                 tempo_preto = None
                 erro_anterior = 0
                 continue                    
@@ -146,7 +146,7 @@ while True:
     else:
         tempo_preto = None
 
-    if not soltou: # se tiver obstáculo antes do verde tem q mudar isso aqui 
+    if not soltou: 
         if distancia <= 4 and distancia2 <= 4:
             desvio()
             erro_anterior = 0   
@@ -201,7 +201,7 @@ while True:
     else:
         e_calc = 100 - e
         d_calc = 100 - d
-        linha_soma = e_calc + d_calc        # MUDOU: antes se chamava "linha" (agora é a função da tela)
+        linha_soma = e_calc + d_calc        
 
         if linha_soma > 0:
             posi = (-1 * e_calc + d_calc) / linha_soma
@@ -225,13 +225,13 @@ while True:
             motor_e.on(mov_e)
             motor_d.on(mov_d)
 
-    if soltou and agora() - tempo_soltou > ATRASO_VERDE:    # MUDOU
+    if soltou and agora() - tempo_soltou > ATRASO_VERDE:    
         n_verde += 1
         if n_verde % 3 == 0:
             if ir_e.color == VERDE or ir_d.color == VERDE:
                 motor_e.off()
                 motor_d.off()
                 garra.off()
-                tela.reset_console()                                      # MUDOU
-                tela.text_at("VERDE - FIM", column=1, row=1)              # MUDOU
+                tela.reset_console()                                      
+                tela.text_at("VERDE - FIM", column=1, row=1)              
                 break
