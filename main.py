@@ -20,7 +20,6 @@ else:
 motor_e = LargeMotor(OUTPUT_B)
 motor_d = LargeMotor(OUTPUT_C)
 garra = MediumMotor(OUTPUT_D)
-
 ir_e = ColorSensor(INPUT_1)
 ir_d = ColorSensor(INPUT_3)
 red = InfraredSensor(INPUT_4)
@@ -35,24 +34,22 @@ def linha(n, texto):
 
 
 kp = 675
-kd = 875                
+kd = 875 
+ki = 20 
+
+integral = 0
 erro_anterior = 0       
-vel = 90
+vel = 70
 ultima_curva = "direita"
 count = 0
 tempo_preto = None
+k_d = 1.2
 
 VERDE = 3
 ATRASO_VERDE = 1.0
 soltou = False
 tempo_soltou = 0
 n_verde = 0
-
-
-VEL_GIRO = 30           
-KP_ALINHA = 50          
-TEMPO_MAX_GIRO = 4.0    
-TEMPO_MAX_ALINHA = 1.5  
 
 def realinhar():
     motor_e.on(40)
@@ -79,7 +76,7 @@ linha(7, "ESQ = modalidade 2")
 
 while not (btn.up or btn.left):
     linha(2, "Esq (luz): " + str(ir_e.reflected_light_intensity))
-    linha(3, "Dir (luz): " + str(ir_d.reflected_light_intensity))
+    linha(3, "Dir (luz): " + str(int(min(100,ir_d.reflected_light_intensity*k_d))))
     linha(4, "Ultra cm: " + str(int(ultrassonico.distance_centimeters)))
     linha(5, "IR prox: " + str(red.proximity))
     sleep(0.1)
@@ -101,28 +98,26 @@ while True:
         btn.wait_for_bump('down')
         
         tempo_correcao = agora()        
-        erro_anterior = 0   
+        erro_anterior = 0
+        integral = 0   
         if tempo_preto is not None:
             tempo_preto = agora()       
 
     distancia2 = red.proximity
     distancia = ultrassonico.distance_centimeters_continuous
 
-    '''if ir_e.color == 7 and ir_d.color == 7:
-        pass'''
-
     e = ir_e.reflected_light_intensity
-    d = ir_d.reflected_light_intensity
+    d = min(100,ir_d.reflected_light_intensity*k_d)
     
 
     if not soltou and e < 20 and d < 20: 
         if tempo_preto is None:
             tempo_preto = agora()                   
-        elif agora() - tempo_preto >= 0.:          
+        elif agora() - tempo_preto >= 0.4:          
             soltar()
             tras(2)
             e = ir_e.reflected_light_intensity
-            d = ir_d.reflected_light_intensity
+            d = min(100,ir_d.reflected_light_intensity*k_d)
             while e > 20 and d > 20:
                 e = ir_e.reflected_light_intensity
                 d = ir_d.reflected_light_intensity
@@ -137,6 +132,7 @@ while True:
                 tempo_soltou = agora()      
                 tempo_preto = None
                 erro_anterior = 0
+                integral = 0
                 continue                    
             else:
                 motor_e.off()
@@ -149,10 +145,12 @@ while True:
     if not soltou: 
         if distancia <= 4 and distancia2 <= 4:
             desvio()
-            erro_anterior = 0   
+            erro_anterior = 0 
+            integral = 0  
         elif distancia <= 4 and distancia2 >= 4:
             pegar()
             erro_anterior = 0   
+            integral = 0
 
     if d < 30:
         ultima_curva = "direita"
@@ -160,7 +158,8 @@ while True:
         ultima_curva = "esquerda"
 
     if e > 50 and d > 50:
-        erro_anterior = 0   
+        erro_anterior = 0
+        integral = 0   
         if ultima_curva == "direita":
             motor_e.on(35)
             motor_d.on(-35)
@@ -170,33 +169,35 @@ while True:
         #valor normal é 10 e 20
     elif d < 7 and e >= 23:
         erro_anterior = 0   
-        motor_e.on(40)
-        motor_d.on(40)
-        sleep(0.25)
+        integral = 0
+        motor_e.on_for_degrees(40,120, block= False)
+        motor_d.on_for_degrees(40,120, block= True)
+        sleep(0.05)
         while ir_e.reflected_light_intensity >= 20:
             motor_e.on(35)
             motor_d.on(-35)
-        motor_e.on(-25)
-        motor_d.on(25)
-        sleep(0.24)
-        motor_e.on(20)
-        motor_d.on(20)
-        sleep(0.15)
+        while ir_e.reflected_light_intensity < 28:
+            motor_e.on(-25)
+            motor_d.on(25)
+        motor_e.off()
+        motor_d.off()
+
 
     elif e < 7 and d >= 23:
-        erro_anterior = 0   
-        motor_e.on(40)
-        motor_d.on(40)
-        sleep(0.25)
+        erro_anterior = 0
+        integral = 0   
+        motor_e.on_for_degrees(40,120, block= False)
+        motor_d.on_for_degrees(40,120, block = True)
+        sleep(0.05)
         while ir_d.reflected_light_intensity >= 20:
             motor_e.on(-35)
             motor_d.on(35)
-        motor_e.on(25)
-        motor_d.on(-25)
-        sleep(0.24)
-        motor_e.on(20)
-        motor_d.on(20)
-        sleep(0.15)
+        while ir_d.reflected_light_intensity < 28:
+            motor_e.on(25)
+            motor_d.on(-25)
+        motor_e.off()
+        motor_d.off()
+
 
     else:
         e_calc = 100 - e
@@ -208,11 +209,12 @@ while True:
             erro = posi
 
             derivada = erro - erro_anterior            
-            erro_anterior = erro                       
-            correcao = erro * kp + derivada * kd       
+            erro_anterior = erro       
+            integral = max(-1,min(1, integral * 0.95 + erro))                
+            correcao = erro * kp + derivada * kd + integral * ki       
 
-            if abs(erro) > 0.6:
-                vel_atual = 82
+            if abs(erro) > 0.2:
+                vel_atual = 62
             else:
                 vel_atual = vel
 
