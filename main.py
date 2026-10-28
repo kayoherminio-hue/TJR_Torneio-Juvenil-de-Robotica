@@ -118,7 +118,7 @@ while True:
     if not soltou and e < 20 and d < 20: 
         if tempo_preto is None:
             tempo_preto = agora()                   
-        elif agora() - tempo_preto >= 0.4:          
+        elif agora() - tempo_preto >= 0.:          
             soltar()
             tras(2)
             e = ir_e.reflected_light_intensity
