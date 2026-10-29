@@ -7,7 +7,7 @@ from ev3dev2.button import Button
 from ev3dev2.console import Console    
 import time as _t                      
 from time import sleep                 
-from moves import desvio, pegar, pick, soltar, tras, frente
+from moves import desvio, pegar, pick, soltar, tras, frente, desvio_por_grau
 
 
 if hasattr(_t, "ticks_ms"):
@@ -43,13 +43,8 @@ vel = 70
 ultima_curva = "direita"
 count = 0
 tempo_preto = None
-k_d = 1.2
-
-VERDE = 3
-ATRASO_VERDE = 1.0
+k_d = 0.95
 soltou = False
-tempo_soltou = 0
-n_verde = 0
 
 def realinhar():
     motor_e.on(40)
@@ -125,26 +120,16 @@ while True:
                 motor_d.on(-70)
             frente(1.4)
             pick(1,0.8)
-
-            if modo2:
-                realinhar()                 
-                soltou = True
-                tempo_soltou = agora()      
-                tempo_preto = None
-                erro_anterior = 0
-                integral = 0
-                continue                    
-            else:
-                motor_e.off()
-                motor_d.off()
-                garra.off()
-                break
+            motor_e.off()
+            motor_d.off()
+            garra.off()
+            break
     else:
         tempo_preto = None
 
     if not soltou: 
         if distancia <= 4 and distancia2 <= 4:
-            desvio()
+            desvio_por_grau()
             erro_anterior = 0 
             integral = 0  
         elif distancia <= 4 and distancia2 >= 4:
@@ -213,7 +198,7 @@ while True:
             integral = max(-1,min(1, integral * 0.95 + erro))                
             correcao = erro * kp + derivada * kd + integral * ki       
 
-            if abs(erro) > 0.2:
+            if abs(erro) > 0.4:
                 vel_atual = 62
             else:
                 vel_atual = vel
@@ -227,13 +212,3 @@ while True:
             motor_e.on(mov_e)
             motor_d.on(mov_d)
 
-    if soltou and agora() - tempo_soltou > ATRASO_VERDE:    
-        n_verde += 1
-        if n_verde % 3 == 0:
-            if ir_e.color == VERDE or ir_d.color == VERDE:
-                motor_e.off()
-                motor_d.off()
-                garra.off()
-                tela.reset_console()                                      
-                tela.text_at("VERDE - FIM", column=1, row=1)              
-                break

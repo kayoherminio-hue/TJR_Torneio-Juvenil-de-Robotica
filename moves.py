@@ -50,6 +50,39 @@ def desvio():
         motor_d.on(-35)
     direita(0.3)
 
+def desvio_por_grau():
+    motor_e.on_for_degrees(-50, 360, block = False)
+    motor_d.on_for_degrees(-50, 360, block = True)
+
+    motor_e.on_for_degrees(50, 480, block = False)
+    motor_d.on_for_degrees(-50, 480, block = True)
+
+    motor_e.on_for_degrees(50, 700, block = False)
+    motor_d.on_for_degrees(50, 700, block = True)
+
+    motor_e.on_for_degrees(-50, 480, block = False)
+    motor_d.on_for_degrees(50, 480, block = True)
+
+    motor_e.on_for_degrees(50, 1150, block = False)
+    motor_d.on_for_degrees(50, 1150, block = True)
+
+    motor_e.on_for_degrees(-50, 480, block = False)
+    motor_d.on_for_degrees(50, 480, block = True)
+
+    motor_e.on_for_degrees(50, 300, block = False)
+    motor_d.on_for_degrees(50, 300, block = True)
+
+    while ir_e.reflected_light_intensity >= 20:
+        motor_e.on(35)
+        motor_d.on(35)
+    frente(0.4)
+    while ir_d.reflected_light_intensity >= 20:
+        motor_e.on(35)
+        motor_d.on(-35)
+    direita(0.3)
+
+
+
 def pick(direcao: int, tempo: int):
     garra.on(direcao*80)
     sleep(tempo)
