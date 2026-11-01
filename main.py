@@ -7,7 +7,7 @@ from ev3dev2.button import Button
 from ev3dev2.console import Console    
 import time as _t                      
 from time import sleep                 
-from moves import desvio, pegar, pick, soltar, tras, frente, desvio_por_grau
+from moves import desvio, pegar, pick, soltar, tras, frente, desvio_por_grau, resgate
 
 
 if hasattr(_t, "ticks_ms"):
@@ -33,17 +33,16 @@ def linha(n, texto):
     tela.text_at("{:<28}".format(texto), column=1, row=n)
 
 
-kp = 675
+kp = 500
 kd = 875 
-ki = 20 
+ki = 50 
 
 integral = 0
 erro_anterior = 0       
 vel = 70
 ultima_curva = "direita"
-count = 0
 tempo_preto = None
-k_d = 0.95
+k_d = 1.08
 soltou = False
 
 def realinhar():
@@ -97,13 +96,18 @@ while True:
         integral = 0   
         if tempo_preto is not None:
             tempo_preto = agora()       
-
+    
     distancia2 = red.proximity
     distancia = ultrassonico.distance_centimeters_continuous
 
     e = ir_e.reflected_light_intensity
     d = min(100,ir_d.reflected_light_intensity*k_d)
     
+    if resgate(e,d,agora()):
+        motor_e.off()
+        motor_d.off()
+        garra.off()
+        break
 
     if not soltou and e < 20 and d < 20: 
         if tempo_preto is None:
@@ -152,6 +156,8 @@ while True:
             motor_e.on(-35)
             motor_d.on(35)
         #valor normal é 10 e 20
+
+
     elif d < 7 and e >= 23:
         erro_anterior = 0   
         integral = 0
@@ -161,9 +167,8 @@ while True:
         while ir_e.reflected_light_intensity >= 20:
             motor_e.on(35)
             motor_d.on(-35)
-        while ir_e.reflected_light_intensity < 28:
-            motor_e.on(-25)
-            motor_d.on(25)
+        motor_e.on_for_degrees(-40,35, block= False)
+        motor_d.on_for_degrees(40,35, block= True)
         motor_e.off()
         motor_d.off()
 
@@ -177,9 +182,8 @@ while True:
         while ir_d.reflected_light_intensity >= 20:
             motor_e.on(-35)
             motor_d.on(35)
-        while ir_d.reflected_light_intensity < 28:
-            motor_e.on(25)
-            motor_d.on(-25)
+        motor_e.on_for_degrees(40,35, block= False)
+        motor_d.on_for_degrees(-40,35, block= True)
         motor_e.off()
         motor_d.off()
 

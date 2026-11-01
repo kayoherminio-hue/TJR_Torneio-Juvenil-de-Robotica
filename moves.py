@@ -1,15 +1,20 @@
 from ev3dev2.motor import LargeMotor, MediumMotor, OUTPUT_B, OUTPUT_C, OUTPUT_D
 from time import sleep
-from ev3dev2.sensor.lego import ColorSensor
-from ev3dev2.sensor import INPUT_1, INPUT_3
+from ev3dev2.sensor.lego import ColorSensor, UltrasonicSensor, InfraredSensor
+from ev3dev2.sensor import INPUT_1, INPUT_3, INPUT_2, INPUT_4
 
 
 ir_e = ColorSensor(INPUT_1)
 ir_d = ColorSensor(INPUT_3)
+red = InfraredSensor(INPUT_4)
+ultrassonico = UltrasonicSensor(INPUT_2)
 
 motor_e = LargeMotor(OUTPUT_B)
 motor_d = LargeMotor(OUTPUT_C)
 garra = MediumMotor(OUTPUT_D)
+
+area = False
+tempo = 0
 
 def frente(tempo:float):
     motor_e.on(40)
@@ -131,3 +136,49 @@ def soltar2():
     #frente(1.5)
     #pick(-1,1)
 
+def reto(distancia: int):
+    motor_e.position = 0
+    motor_d.position = 0
+    while motor_e.position < distancia:
+        dis = ultrassonico.distance_centimeters_continuous
+        if dis <= 4:
+            motor_e.off()
+            motor_d.off()
+            if red.proximity <=4:
+                desvio_por_grau()
+            else:
+                pegar()
+        dif = motor_e.position - motor_d.position 
+        motor_e.on(max(20,min(80,40 - dif*2)))
+        motor_d.on(max(20,min(80,40 + dif*2)))
+    motor_e.off()
+    motor_d.off()
+
+def resgate(e,d,t):
+    global tempo, area
+    if e < 20 and d < 20 and not area:
+        area = True
+        tempo = t
+
+    if area:
+        if (t - tempo > 0.3) and (e < 20 or d < 20):
+            area = False
+        elif t - tempo >= 3:
+            motor_e.off()
+            motor_d.off()
+            while ir_e.reflected_light_intensity > 20 and ir_d.reflected_light_intensity > 20:
+                dif = motor_e.position - motor_d.position 
+                motor_e.on(max(-100, min(100, 50 - dif * 2)))
+                motor_d.on(max(-100, min(100, 50 + dif * 2)))
+            motor_e.on_for_degrees(-50, 180, block = False)
+            motor_d.on_for_degrees(-50, 180, block = True)           
+            motor_e.on_for_degrees(-50, 480, block = False)
+            motor_d.on_for_degrees(50, 480, block = True)
+            while ir_e.reflected_light_intensity > 20 and ir_d.reflected_light_intensity > 20:
+                motor_e.on(50)
+                motor_d.on(50)
+            area = False
+            return True
+    return False
+                
+                
