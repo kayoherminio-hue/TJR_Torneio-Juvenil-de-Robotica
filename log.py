@@ -8,7 +8,7 @@ else:
     def _ms():
         return int(t.time() * 1000)
 
-arquivo = "/Users/kayoh/OneDrive/Documentos/TJR/TJR_2026/log.csv"
+arquivo = "/home/robot/TJR_2026/log.csv"
 dados = [0] * 2400
 _tam = len(dados)
 k_atual = 0

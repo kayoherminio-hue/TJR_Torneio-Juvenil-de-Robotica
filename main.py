@@ -8,6 +8,7 @@ from ev3dev2.console import Console
 import time as _t                      
 from time import sleep                 
 from moves import desvio, pegar, pick, soltar, tras, frente, desvio_por_grau, resgate
+from log import registrar, salvar, armar_sinal    # LOG
 
 
 if hasattr(_t, "ticks_ms"):
@@ -82,11 +83,19 @@ sleep(0.3)
 
 tempo_correcao = agora()                
 pick(-1, 0.5)
+
+n_volta = 0                                  # LOG
+t_ini = agora()                              # LOG
+ramo = 0                                     # LOG
+armar_sinal(motor_e, motor_d, garra)         # LOG
+
 while True:
     if btn.down:
         motor_e.off()
         motor_d.off()
         garra.off()
+        salvar()                                                          # LOG
+        linha(2, "loops/s: " + str(int(n_volta / (agora() - t_ini))))    # LOG
         sleep(0.5)
         
         btn.wait_for_bump('down')
@@ -97,6 +106,9 @@ while True:
         if tempo_preto is not None:
             tempo_preto = agora()       
     
+    n_volta += 1                                 # LOG
+    ramo = 0                                     # LOG
+
     distancia2 = red.proximity
     distancia = ultrassonico.distance_centimeters_continuous
 
@@ -147,6 +159,7 @@ while True:
         ultima_curva = "esquerda"
 
     if e > 50 and d > 50:
+        ramo = 1                                 # LOG
         erro_anterior = 0
         integral = 0   
         if ultima_curva == "direita":
@@ -159,6 +172,7 @@ while True:
 
 
     elif d < 7 and e >= 23:
+        ramo = 2                                 # LOG
         erro_anterior = 0   
         integral = 0
         motor_e.on_for_degrees(40,120, block= False)
@@ -174,6 +188,7 @@ while True:
 
 
     elif e < 7 and d >= 23:
+        ramo = 3                                 # LOG
         erro_anterior = 0
         integral = 0   
         motor_e.on_for_degrees(40,120, block= False)
@@ -216,3 +231,7 @@ while True:
             motor_e.on(mov_e)
             motor_d.on(mov_d)
 
+    if ramo > 1 or n_volta % 4 == 0:             # LOG
+        registrar(e, d, ramo)                    # LOG
+
+salvar()                                         # LOG
