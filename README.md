@@ -9,7 +9,6 @@ Robô LEGO EV3 que segue linha, desvia de obstáculos, pega uma lata, solta no p
 ## O que o robô faz
 
 - **Modalidade normal (botão CIMA):** segue a linha, desvia de obstáculos, pega a lata e, ao ver preto nos dois sensores por 0,4 s, solta o objeto e para.
-- **Modalidade 2 (botão ESQUERDA):** igual, mas depois de soltar o objeto ele se realinha, volta a seguir a linha e para ao ver verde.
 - **Botão BAIXO:** pausa e continua durante a corrida.
 
 ## Hardware
@@ -58,7 +57,6 @@ Robô LEGO EV3 que segue linha, desvia de obstáculos, pega uma lata, solta no p
 
 - Bateria carregada (a velocidade dos motores muda com a carga).
 - Na tela inicial, com os dois sensores no branco, `Esq` e `Dir` devem aparecer quase iguais. Senão, ajustar o `K_D`.
-- Conferir o valor do branco da pista (a busca de linha só dispara acima de 50).
 - Lentes dos sensores limpas e cabos presos.
 
 ## Lições aprendidas
@@ -70,11 +68,9 @@ Robô LEGO EV3 que segue linha, desvia de obstáculos, pega uma lata, solta no p
 
 ## Problemas conhecidos e melhorias
 
-- Em gaps o robô pode se perder (gira procurando em vez de andar reto).
-- Os `while` das curvas e do recuo não têm limite de tempo.
-- O ultrassônico e o IR são lidos a cada volta, o que reduz as leituras por segundo.
-- Log para análise ainda não implementado.
-- A redução de velocidade em curva (`abs(erro) > 0.6`) nunca dispara na escala atual do erro.
+- O robo tende a um lado nas retas.
+- Falta aperfeiçoar o resgate.
+- Entra muito na condição do 90 graus
 
 ## Equipe Horus 
 
