@@ -41,7 +41,6 @@ ki = 50
 integral = 0
 erro_anterior = 0       
 vel = 70
-ultima_curva = "direita"
 tempo_preto = None
 k_d = 1.08
 soltou = False
@@ -84,10 +83,10 @@ sleep(0.3)
 tempo_correcao = agora()                
 pick(-1, 0.5)
 
-n_volta = 0                                  # LOG
-t_ini = agora()                              # LOG
-ramo = 0                                     # LOG
-armar_sinal(motor_e, motor_d, garra)         # LOG
+n_volta = 0                                  
+t_ini = agora()                              
+ramo = 0                                     
+armar_sinal(motor_e, motor_d, garra)         
 
 while True:
     if btn.down:
@@ -106,8 +105,8 @@ while True:
         if tempo_preto is not None:
             tempo_preto = agora()       
     
-    n_volta += 1                                 # LOG
-    ramo = 0                                     # LOG
+    n_volta += 1                                 
+    ramo = 0                                     
 
     distancia2 = red.proximity
     distancia = ultrassonico.distance_centimeters_continuous
@@ -153,26 +152,11 @@ while True:
             erro_anterior = 0   
             integral = 0
 
-    if d < 30:
-        ultima_curva = "direita"
-    elif e < 30:
-        ultima_curva = "esquerda"
-
-    if e > 50 and d > 50:
-        ramo = 1                                 # LOG
-        erro_anterior = 0
-        integral = 0   
-        if ultima_curva == "direita":
-            motor_e.on(35)
-            motor_d.on(-35)
-        elif ultima_curva == "esquerda":
-            motor_e.on(-35)
-            motor_d.on(35)
         #valor normal é 10 e 20
 
 
-    elif d < 7 and e >= 23:
-        ramo = 2                                 # LOG
+    if d < 7 and e >= 23:
+        ramo = 2                                 
         erro_anterior = 0   
         integral = 0
         motor_e.on_for_degrees(40,120, block= False)
@@ -188,7 +172,7 @@ while True:
 
 
     elif e < 7 and d >= 23:
-        ramo = 3                                 # LOG
+        ramo = 3                                 
         erro_anterior = 0
         integral = 0   
         motor_e.on_for_degrees(40,120, block= False)
@@ -217,7 +201,7 @@ while True:
             integral = max(-1,min(1, integral * 0.95 + erro))                
             correcao = erro * kp + derivada * kd + integral * ki       
 
-            if abs(erro) > 0.4:
+            if abs(erro) > 0.1:
                 vel_atual = 62
             else:
                 vel_atual = vel
@@ -231,7 +215,7 @@ while True:
             motor_e.on(mov_e)
             motor_d.on(mov_d)
 
-    if ramo > 1 or n_volta % 4 == 0:             # LOG
-        registrar(e, d, ramo)                    # LOG
+    if ramo > 1 or n_volta % 4 == 0:             
+        registrar(e, d, ramo)                    
 
-salvar()                                         # LOG
+salvar()                                         

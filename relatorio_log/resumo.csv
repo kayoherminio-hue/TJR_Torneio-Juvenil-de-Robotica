@@ -1,19 +1,19 @@
 ﻿Medida,log.csv
-Registros,508
-Duração coberta (s),102.5
-Curvas de 90° detectadas,28
+Registros,336
+Duração coberta (s),82.6
+Curvas de 90° detectadas,27
    à direita,12
-   à esquerda,16
+   à esquerda,15
 Episódios de branco,0
 Maior episódio de branco (s),0
 Tempo total em branco (s),0
-Sensor esquerdo no PID: mín / mediana / máx,1 / 29 / 36
-Sensor esquerdo no PID: p5 / p95,18 / 33
-Sensor direito no PID: mín / mediana / máx,0 / 28 / 35
-Sensor direito no PID: p5 / p95,17 / 32
-Erro: maior |erro|,0.146
-Erro: p95 de |erro|,0.101
+Sensor esquerdo no PID: mín / mediana / máx,7 / 29 / 36
+Sensor esquerdo no PID: p5 / p95,19 / 33
+Sensor direito no PID: mín / mediana / máx,7 / 28 / 37
+Sensor direito no PID: p5 / p95,15 / 33
+Erro: maior |erro|,0.162
+Erro: p95 de |erro|,0.109
 Erro: média (viés),0.007
 Voltas PID com |erro| > 0.4 (%),0.0
-Voltas por segundo (estimado),37.0
+Voltas por segundo (estimado),35.1
 Curvas de 90° seguidas de branco,0
