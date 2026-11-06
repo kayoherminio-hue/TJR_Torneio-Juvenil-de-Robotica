@@ -8,7 +8,7 @@ from ev3dev2.console import Console
 import time as _t                      
 from time import sleep                 
 from moves import desvio, pegar, pick, soltar, tras, frente, desvio_por_grau, resgate
-from log import registrar, salvar, armar_sinal    # LOG
+from log import registrar, salvar, armar_sinal    
 
 
 if hasattr(_t, "ticks_ms"):
@@ -34,7 +34,7 @@ def linha(n, texto):
     tela.text_at("{:<28}".format(texto), column=1, row=n)
 
 
-kp = 500
+kp = 675
 kd = 875 
 ki = 50 
 
@@ -42,25 +42,8 @@ integral = 0
 erro_anterior = 0       
 vel = 70
 tempo_preto = None
-k_d = 1.08
+k_d = 1
 soltou = False
-
-def realinhar():
-    motor_e.on(40)
-    motor_d.on(40)
-    sleep(1)
-    motor_e.on(-35)
-    motor_d.on(35)
-    sleep(1)
-    while ir_e.reflected_light_intensity >= 20:
-        motor_e.on(35)
-        motor_d.on(-35)
-    motor_e.on(20)
-    motor_d.on(-20)
-    sleep(0.3)
-    motor_e.on(20)
-    motor_d.on(20)
-    sleep(0.15)
 
 
 tela.reset_console()
@@ -93,8 +76,9 @@ while True:
         motor_e.off()
         motor_d.off()
         garra.off()
-        salvar()                                                          # LOG
-        linha(2, "loops/s: " + str(int(n_volta / (agora() - t_ini))))    # LOG
+        salvar()                                                          
+        linha(2, "loops/s: " + str(int(n_volta / (agora() - t_ini))))    
+        linha(3,"k_d: " + str(k_d))
         sleep(0.5)
         
         btn.wait_for_bump('down')
@@ -167,8 +151,6 @@ while True:
             motor_d.on(-35)
         motor_e.on_for_degrees(-40,35, block= False)
         motor_d.on_for_degrees(40,35, block= True)
-        motor_e.off()
-        motor_d.off()
 
 
     elif e < 7 and d >= 23:
@@ -183,8 +165,6 @@ while True:
             motor_d.on(35)
         motor_e.on_for_degrees(40,35, block= False)
         motor_d.on_for_degrees(-40,35, block= True)
-        motor_e.off()
-        motor_d.off()
 
 
     else:
@@ -195,7 +175,9 @@ while True:
         if linha_soma > 0:
             posi = (-1 * e_calc + d_calc) / linha_soma
             erro = posi
-
+            if e > 32 and d > 32:
+                erro = 0
+                integral = 0
             derivada = erro - erro_anterior            
             erro_anterior = erro       
             integral = max(-1,min(1, integral * 0.95 + erro))                

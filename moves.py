@@ -166,7 +166,7 @@ def resgate(e,d,t):
         elif t - tempo >= 3:
             motor_e.off()
             motor_d.off()
-            while ir_e.reflected_light_intensity > 20 and ir_d.reflected_light_intensity > 20:
+            while ir_e.reflected_light_intensity > 10 and ir_d.reflected_light_intensity > 10:
                 dif = motor_e.position - motor_d.position 
                 motor_e.on(max(-100, min(100, 50 - dif * 2)))
                 motor_d.on(max(-100, min(100, 50 + dif * 2)))
@@ -174,11 +174,10 @@ def resgate(e,d,t):
             motor_d.on_for_degrees(-50, 180, block = True)           
             motor_e.on_for_degrees(-50, 480, block = False)
             motor_d.on_for_degrees(50, 480, block = True)
-            while ir_e.reflected_light_intensity > 20 and ir_d.reflected_light_intensity > 20:
-                motor_e.on(50)
-                motor_d.on(50)
+            while ir_e.reflected_light_intensity > 10 and ir_d.reflected_light_intensity > 10:
+                motor_e.on(-50)
+                motor_d.on(-50)
             area = False
             return True
     return False
-                
                 
