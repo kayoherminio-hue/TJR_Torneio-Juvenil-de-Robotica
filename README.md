@@ -29,6 +29,7 @@ Robô LEGO EV3 que segue linha, desvia de obstáculos, pega uma lata, solta no p
 
 - `main.py`: laço principal (seguidor de linha, curvas de 90°, decisões).
 - `moves.py`: manobras (`desvio`, `pegar`, `soltar`, `frente`, `tras`, `direita`, `esquerda`, `pick`).
+- `log.py`: sistema assíncrono de telemetria e gravação de CSV.
 - Linguagem: Python (MicroPython do ev3dev, biblioteca `ev3dev2`). TODO: versão do ev3dev.
 - Como rodar: enviar a pasta para o robô (extensão do VS Code para EV3) e executar `main.py`. A primeira linha é `#!/usr/bin/env micropython`.
 
@@ -79,4 +80,4 @@ Alunos:
 - Rafael Adelino
 - Ícaro Emanuel
 - Vinicius Gomes
-Instituição Federal da Paraíba
+Instituição Federal da Paraíba | Campus Campina Grande
