@@ -143,28 +143,28 @@ while True:
         ramo = 2                                 
         erro_anterior = 0   
         integral = 0
-        motor_e.on_for_degrees(40,120, block= False)
-        motor_d.on_for_degrees(40,120, block= True)
+        motor_e.on_for_degrees(70,120, block= False)
+        motor_d.on_for_degrees(70,120, block= True)
         sleep(0.05)
         while ir_e.reflected_light_intensity >= 20:
-            motor_e.on(35)
-            motor_d.on(-35)
-        motor_e.on_for_degrees(-40,35, block= False)
-        motor_d.on_for_degrees(40,35, block= True)
+            motor_e.on(55)
+            motor_d.on(-55)
+        motor_e.on_for_degrees(-70,35, block= False)
+        motor_d.on_for_degrees(70,35, block= True)
 
 
     elif e < 7 and d >= 23:
         ramo = 3                                 
         erro_anterior = 0
         integral = 0   
-        motor_e.on_for_degrees(40,120, block= False)
-        motor_d.on_for_degrees(40,120, block = True)
+        motor_e.on_for_degrees(70,120, block= False)
+        motor_d.on_for_degrees(70,120, block = True)
         sleep(0.05)
         while ir_d.reflected_light_intensity >= 20:
-            motor_e.on(-35)
-            motor_d.on(35)
-        motor_e.on_for_degrees(40,35, block= False)
-        motor_d.on_for_degrees(-40,35, block= True)
+            motor_e.on(-55)
+            motor_d.on(55)
+        motor_e.on_for_degrees(70,35, block= False)
+        motor_d.on_for_degrees(-70,35, block= True)
 
 
     else:
@@ -175,7 +175,7 @@ while True:
         if linha_soma > 0:
             posi = (-1 * e_calc + d_calc) / linha_soma
             erro = posi
-            if e > 32 and d > 32:
+            if e > 38 and d > 38:
                 erro = 0
                 integral = 0
             derivada = erro - erro_anterior            
@@ -183,7 +183,7 @@ while True:
             integral = max(-1,min(1, integral * 0.95 + erro))                
             correcao = erro * kp + derivada * kd + integral * ki       
 
-            if abs(erro) > 0.1:
+            if abs(erro) > 0.8:
                 vel_atual = 62
             else:
                 vel_atual = vel

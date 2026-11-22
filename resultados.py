@@ -1,23 +1,4 @@
 #!/usr/bin/env python3
-"""
-analisar_log.py - analisa o log.csv do robô seguidor de linha.
-
-O log tem as colunas: ms, e, d, ramo
-    ramo 0 = PID, 1 = branco nos dois sensores, 2 = curva de 90 à direita, 3 = curva de 90 à esquerda
-
-Uso (no computador, não no robô):
-    pip install pandas matplotlib          (só na primeira vez)
-
-    python analisar_log.py                          usa o log*.csv mais recente da pasta
-    python analisar_log.py log.csv                  analisa um arquivo
-    python analisar_log.py antes.csv depois.csv     analisa os dois e compara
-    python analisar_log.py log.csv --curvas 16      número de curvas de 90 da pista (padrão 16)
-
-No Windows também dá para arrastar o arquivo .csv em cima do .py.
-
-Gera a pasta relatorio_<nome>/ com relatorio.html (abre sozinho), resumo.csv e os gráficos em PNG.
-"""
-
 import argparse
 import base64
 import glob
