@@ -1,28 +1,62 @@
 
-name: TJR Code Checker
+name: TJR Robot Assistant
 
 on:
   push:
-    branches: [timeout]
+    branches:
+      - main
 
 permissions:
   contents: read
 
 jobs:
-  analisar:
+  robot-assistant:
+    name: Análise inteligente do TJR
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
+      # 1. Baixar o repositório
+      - name: Baixar repositório
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
 
+      # 2. Configurar Python
       - name: Configurar Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
-      - name: Testar execução
-        run: python --version
+      # 3. Instalar dependências
+      - name: Instalar ferramentas
+        run: |
+          python -m pip install --upgrade pip
+          pip install openai ruff
 
+      # 4. Verificar sintaxe Python
       - name: Verificar sintaxe
         run: python -m compileall -q .
+
+      # 5. Analisar código com Ruff
+      - name: Análise estática
+        continue-on-error: true
+        run: ruff check . --output-format=concise
+
+      # 6. Executar assistente com IA
+      - name: Executar TJR Robot Assistant
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          OPENAI_MODEL: gpt-5.5
+        run: python tools/robot_assistant.py
+
+      # 7. Disponibilizar relatório
+      - name: Disponibilizar relatório
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tjr-robot-assistant-report
+          path: reports/tjr-report.md
+          if-no-files-found: warn
+          retention-days: 14
+
