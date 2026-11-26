@@ -1,0 +1,28 @@
+
+name: TJR Code Checker
+
+on:
+  push:
+    branches: [timeout]
+
+permissions:
+  contents: read
+
+jobs:
+  analisar:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Testar execução
+        run: python --version
+
+      - name: Verificar sintaxe
+        run: python -m compileall -q .

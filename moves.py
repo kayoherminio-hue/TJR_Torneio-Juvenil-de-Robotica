@@ -15,6 +15,8 @@ garra = MediumMotor(OUTPUT_D)
 
 area = False
 tempo = 0
+ultimo = 0
+ref = 0
 
 def frente(tempo:float):
     motor_e.on(40)
@@ -155,10 +157,14 @@ def reto(distancia: int):
     motor_d.off()
 
 def resgate(e,d,t):
-    global tempo, area
-    if e < 20 and d < 20 and not area:
+    global tempo, area, ultimo
+    if e < 10 and d < 10 and not area:
         area = True
         tempo = t
+
+    if ultimo != 0 and (t - ultimo > 0.15):
+        area = False
+    ultimo = t
 
     if area:
         if (t - tempo > 0.3) and (e < 20 or d < 20):
@@ -166,10 +172,12 @@ def resgate(e,d,t):
         elif t - tempo >= 3:
             motor_e.off()
             motor_d.off()
-            while ir_e.reflected_light_intensity > 10 and ir_d.reflected_light_intensity > 10:
-                dif = motor_e.position - motor_d.position 
-                motor_e.on(max(-100, min(100, 50 - dif * 2)))
-                motor_d.on(max(-100, min(100, 50 + dif * 2)))
+            pe0 = motor_e.position
+            pd0 = motor_d.position
+            while ir_e.reflected_light_intensity > 5 and ir_d.reflected_light_intensity > 5:
+                dif = (motor_e.position - pe0) - (motor_d.position - pd0)
+                motor_e.on(max(20, min(80, 50 - dif * 1.5)))
+                motor_d.on(max(20, min(80, 50 + dif * 1.5)))
             motor_e.on_for_degrees(-50, 180, block = False)
             motor_d.on_for_degrees(-50, 180, block = True)           
             motor_e.on_for_degrees(-50, 480, block = False)

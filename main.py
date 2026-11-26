@@ -40,7 +40,7 @@ ki = 50
 
 integral = 0
 erro_anterior = 0       
-vel = 70
+vel = 65
 tempo_preto = None
 k_d = 1
 soltou = False
@@ -107,7 +107,7 @@ while True:
     if not soltou and e < 20 and d < 20: 
         if tempo_preto is None:
             tempo_preto = agora()                   
-        elif agora() - tempo_preto >= 0.4:          
+        elif agora() - tempo_preto >= 0.5:          
             soltar()
             tras(2)
             e = ir_e.reflected_light_intensity
@@ -146,11 +146,40 @@ while True:
         motor_e.on_for_degrees(70,120, block= False)
         motor_d.on_for_degrees(70,120, block= True)
         sleep(0.05)
-        while ir_e.reflected_light_intensity >= 20:
-            motor_e.on(55)
-            motor_d.on(-55)
-        motor_e.on_for_degrees(-70,35, block= False)
-        motor_d.on_for_degrees(70,35, block= True)
+        t_giro = agora()
+        while ir_e.reflected_light_intensity >= 20 and agora() - t_giro < 1.5:
+            motor_e.on(55) 
+            motor_d.on(-55) 
+
+        if agora() - t_giro >= 1.5:
+            motor_e.on_for_degrees(-55,240, block= False)
+            motor_d.on_for_degrees(55,240, block= True)
+            motor_e.on_for_degrees(-55,120, block= False)
+            motor_d.on_for_degrees(-55,120, block= True)
+            t_aj = agora()
+            while agora() - t_aj <= 2:
+                ae = ir_e.reflected_light_intensity
+                ad = ir_d.reflected_light_intensity
+                if ae < 20 and ad > 20:
+                    motor_e.on(-30)
+                    motor_d.on(30)
+                elif ad < 20 and ae > 20:
+                    motor_e.on(30)
+                    motor_d.on(-30)
+                else:
+                    break
+            pe0 = motor_e.position
+            pd0 = motor_d.position
+            t_reto = agora()
+            while agora() - t_reto < 0.5:
+                dif = (motor_e.position - pe0) - (motor_d.position - pd0)
+                motor_e.on(max(-100, min(100, 50 - dif * 2)))
+                motor_d.on(max(-100, min(100, 50 + dif * 2)))
+            motor_e.off()
+            motor_d.off()
+        else:
+            motor_e.on_for_degrees(-70,35, block= False)
+            motor_d.on_for_degrees(70,35, block= True)
 
 
     elif e < 7 and d >= 23:
@@ -160,11 +189,40 @@ while True:
         motor_e.on_for_degrees(70,120, block= False)
         motor_d.on_for_degrees(70,120, block = True)
         sleep(0.05)
-        while ir_d.reflected_light_intensity >= 20:
-            motor_e.on(-55)
-            motor_d.on(55)
-        motor_e.on_for_degrees(70,35, block= False)
-        motor_d.on_for_degrees(-70,35, block= True)
+        t_giro = agora()
+        while ir_d.reflected_light_intensity >= 20 and agora() - t_giro < 1.5:
+            motor_e.on(-55) 
+            motor_d.on(55) 
+
+        if agora() - t_giro >= 1.5:
+            motor_e.on_for_degrees(55,240, block= False)
+            motor_d.on_for_degrees(-55,240, block= True)
+            motor_e.on_for_degrees(-55,120, block= False)
+            motor_d.on_for_degrees(-55,120, block= True)
+            t_aj = agora()
+            while agora() - t_aj <= 2:
+                ae = ir_e.reflected_light_intensity
+                ad = ir_d.reflected_light_intensity
+                if ae < 20 and ad > 20:
+                    motor_e.on(-30)
+                    motor_d.on(30)
+                elif ad < 20 and ae > 20:
+                    motor_e.on(30)
+                    motor_d.on(-30)
+                else:
+                    break
+            pe0 = motor_e.position
+            pd0 = motor_d.position
+            t_reto = agora()
+            while agora() - t_reto < 0.5:
+                dif = (motor_e.position - pe0) - (motor_d.position - pd0)
+                motor_e.on(max(-100, min(100, 50 - dif * 2)))
+                motor_d.on(max(-100, min(100, 50 + dif * 2)))
+            motor_e.off()
+            motor_d.off()
+        else:
+            motor_e.on_for_degrees(70,35, block= False)
+            motor_d.on_for_degrees(-70,35, block= True)
 
 
     else:
@@ -175,7 +233,7 @@ while True:
         if linha_soma > 0:
             posi = (-1 * e_calc + d_calc) / linha_soma
             erro = posi
-            if e > 38 and d > 38:
+            if e >= 30 and d >= 30:
                 erro = 0
                 integral = 0
             derivada = erro - erro_anterior            
