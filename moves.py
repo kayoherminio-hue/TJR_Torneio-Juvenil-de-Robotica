@@ -157,21 +157,27 @@ def reto(distancia: int):
     motor_d.off()
 
 def resgate(e,d,t):
-    global tempo, area
+    global tempo, area, ultimo
     if e < 10 and d < 10 and not area:
         area = True
         tempo = t
 
+    if ultimo != 0 and (t - ultimo > 0.15):
+        area = False
+    ultimo = t
+
     if area:
         if (t - tempo > 0.3) and (e < 20 or d < 20):
             area = False
-        elif t - tempo >= 4:
+        elif t - tempo >= 3:
             motor_e.off()
             motor_d.off()
+            pe0 = motor_e.position
+            pd0 = motor_d.position
             while ir_e.reflected_light_intensity > 5 and ir_d.reflected_light_intensity > 5:
-                dif = motor_e.position - motor_d.position 
-                motor_e.on(max(-100, min(100, 50 - dif * 2)))
-                motor_d.on(max(-100, min(100, 50 + dif * 2)))
+                dif = (motor_e.position - pe0) - (motor_d.position - pd0)
+                motor_e.on(max(20, min(80, 50 - dif * 1.5)))
+                motor_d.on(max(20, min(80, 50 + dif * 1.5)))
             motor_e.on_for_degrees(-50, 180, block = False)
             motor_d.on_for_degrees(-50, 180, block = True)           
             motor_e.on_for_degrees(-50, 480, block = False)
